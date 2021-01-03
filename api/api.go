@@ -13,15 +13,15 @@ import (
 func StartAPI() {
 	e := echo.New()
 
-	e.GET("/results", getResults)
+	e.POST("/results", getResults)
 
-	e.GET("/resultsByCountry", getResultsByCountry)
+	e.POST("/resultsByCountry", getResultsByCountry)
 
-	e.GET("/candidatesByCountry", getCandidatesByCountry)
+	e.POST("/candidatesByCountry", getCandidatesByCountry)
 
-	e.GET("/getTop5Candidates", getTop5Candidates)
+	e.POST("/getTop5Candidates", getTop5Candidates)
 
-	e.GET("/getTop5Countries", getTop5Countries)
+	e.POST("/getTop5Countries", getTop5Countries)
 
 	if viper.GetString("api.certfile") != "" && viper.GetString("api.keyfile") != "" {
 		e.Logger.Fatal(e.StartTLS(":"+viper.GetString("api.port"), viper.GetString("api.certfile"), viper.GetString("api.keyfile")))
