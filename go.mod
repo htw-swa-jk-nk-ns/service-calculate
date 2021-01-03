@@ -1,4 +1,4 @@
-module service-calculate
+module github.com/htw-swa-jk-nk-ns/service-calculate
 
 go 1.14
 

@@ -1,12 +1,12 @@
 package api
 
 import (
+	"github.com/htw-swa-jk-nk-ns/service-calculate/calculate"
 	"github.com/htw-swa-jk-nk-ns/service-raw-data/vote"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"net/http"
-	"service-calculate/calculate"
 )
 
 // StartAPI starts the API.
