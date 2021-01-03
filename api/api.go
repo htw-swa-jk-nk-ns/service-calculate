@@ -82,11 +82,11 @@ func getApiResoponse(ctx echo.Context, statusCode int, response interface{}) err
 }
 
 type OutputError struct {
-	message string
+	Message string `json:"message" xml:"message"`
 }
 
 func newOutputError(err error) OutputError {
 	return OutputError{
-		message: err.Error(),
+		Message: err.Error(),
 	}
 }

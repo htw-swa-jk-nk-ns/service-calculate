@@ -6,18 +6,18 @@ import (
 )
 
 type Result struct {
-	Candidate  string
-	TotalVotes int
+	Candidate  string `json:"candidate" xml:"candidate"`
+	TotalVotes int    `json:"totalVotes" xml:"totalVotes"`
 }
 
 type ResultByCountry struct {
-	Country    string
-	TotalVotes int
+	Country    string `json:"country" xml:"country"`
+	TotalVotes int    `json:"totalVotes" xml:"totalVotes"`
 }
 
 type CandidatesByCountry struct {
-	Country    string
-	Candidates []Result
+	Country    string   `json:"country" xml:"country"`
+	Candidates []Result `json:"candidates" xml:"candidates"`
 }
 
 type valueGetStringFunc func(vote *vote.Vote) string
