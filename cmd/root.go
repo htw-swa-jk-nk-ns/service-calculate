@@ -28,6 +28,9 @@ func init() {
 	rootCMD.PersistentFlags().String("api-format", "json", "json format ('json' or 'xml')")
 	rootCMD.PersistentFlags().Int("api-port", 8889, "api port")
 
+	//get votes
+	rootCMD.PersistentFlags().String("votes-api", "http://service-serving-layer:8080", "api url to get all votes")
+
 	//api
 	err := viper.BindPFlag("api.format", rootCMD.PersistentFlags().Lookup("api-format"))
 	if err != nil {
@@ -42,6 +45,15 @@ func init() {
 		log.Error().
 			AnErr("Error", err).
 			Msg("Can't bind flag api port")
+		return
+	}
+
+	//get vites
+	err = viper.BindPFlag("votes.api", rootCMD.PersistentFlags().Lookup("votes-api"))
+	if err != nil {
+		log.Error().
+			AnErr("Error", err).
+			Msg("Can't bind flag votes api")
 		return
 	}
 

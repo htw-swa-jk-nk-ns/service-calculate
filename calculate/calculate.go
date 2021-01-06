@@ -10,7 +10,7 @@ type Result struct {
 	TotalVotes int    `json:"totalVotes" xml:"totalVotes"`
 }
 
-type ResultByCountry struct {
+type VotesByCountry struct {
 	Country    string `json:"country" xml:"country"`
 	TotalVotes int    `json:"totalVotes" xml:"totalVotes"`
 }
@@ -37,11 +37,11 @@ func GetResults(v vote.Votes) []Result {
 	return results
 }
 
-func GetResultsByCountry(v vote.Votes) []ResultByCountry {
-	var results []ResultByCountry
+func GetVotesByCountry(v vote.Votes) []VotesByCountry {
+	var results []VotesByCountry
 	m := getNumOfXGroupedByY(v, GetCountryForVote, nil)
 	for measurement, totalVotes := range m[""] {
-		results = append(results, ResultByCountry{
+		results = append(results, VotesByCountry{
 			Country:    measurement,
 			TotalVotes: totalVotes,
 		})
@@ -76,8 +76,8 @@ func GetTop5Candidates(v vote.Votes) []Result {
 	return GetResults(v)[:5]
 }
 
-func GetTop5Countries(v vote.Votes) []ResultByCountry {
-	return GetResultsByCountry(v)[:5]
+func GetTop5Countries(v vote.Votes) []VotesByCountry {
+	return GetVotesByCountry(v)[:5]
 }
 
 func getNumOfXGroupedByY(v vote.Votes, getFunc valueGetStringFunc, groupedByFunc valueGetStringFunc) map[string]map[string]int {

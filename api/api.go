@@ -1,11 +1,13 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/htw-swa-jk-nk-ns/service-calculate/calculate"
 	"github.com/htw-swa-jk-nk-ns/service-raw-data/vote"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -13,15 +15,15 @@ import (
 func StartAPI() {
 	e := echo.New()
 
-	e.POST("/results", getResults)
+	e.GET("/results", getResults)
 
-	e.POST("/resultsByCountry", getResultsByCountry)
+	e.GET("/votesByCountry", getVotesByCountry)
 
-	e.POST("/candidatesByCountry", getCandidatesByCountry)
+	e.GET("/getResultsByCountry", getResultsByCountry)
 
-	e.POST("/getTop5Candidates", getTop5Candidates)
+	e.GET("/top5Candidates", getTop5Candidates)
 
-	e.POST("/getTop5Countries", getTop5Countries)
+	e.GET("/top5Countries", getTop5Countries)
 
 	if viper.GetString("api.certfile") != "" && viper.GetString("api.keyfile") != "" {
 		e.Logger.Fatal(e.StartTLS(":"+viper.GetString("api.port"), viper.GetString("api.certfile"), viper.GetString("api.keyfile")))
@@ -31,43 +33,61 @@ func StartAPI() {
 }
 
 func getResults(ctx echo.Context) error {
-	var votes vote.Votes
-	if err := ctx.Bind(&votes); err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to bind input")))
+	votes, err := getAllVotes()
+	if err != nil {
+		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
 	return getApiResoponse(ctx, http.StatusOK, calculate.GetResults(votes))
 }
 
-func getResultsByCountry(ctx echo.Context) error {
-	var votes vote.Votes
-	if err := ctx.Bind(&votes); err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to bind input")))
+func getVotesByCountry(ctx echo.Context) error {
+	votes, err := getAllVotes()
+	if err != nil {
+		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
-	return getApiResoponse(ctx, http.StatusOK, calculate.GetResultsByCountry(votes))
+	return getApiResoponse(ctx, http.StatusOK, calculate.GetVotesByCountry(votes))
 }
 
-func getCandidatesByCountry(ctx echo.Context) error {
-	var votes vote.Votes
-	if err := ctx.Bind(&votes); err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to bind input")))
+func getResultsByCountry(ctx echo.Context) error {
+	votes, err := getAllVotes()
+	if err != nil {
+		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
 	return getApiResoponse(ctx, http.StatusOK, calculate.GetCandidatesByCountry(votes))
 }
 
 func getTop5Candidates(ctx echo.Context) error {
-	var votes vote.Votes
-	if err := ctx.Bind(&votes); err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to bind input")))
+	votes, err := getAllVotes()
+	if err != nil {
+		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
 	return getApiResoponse(ctx, http.StatusOK, calculate.GetTop5Candidates(votes))
 }
 
 func getTop5Countries(ctx echo.Context) error {
-	var votes vote.Votes
-	if err := ctx.Bind(&votes); err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to bind input")))
+	votes, err := getAllVotes()
+	if err != nil {
+		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
 	return getApiResoponse(ctx, http.StatusOK, calculate.GetTop5Countries(votes))
+}
+
+func getAllVotes() (vote.Votes, error) {
+	res, err := http.Get(viper.GetString("votes.api"))
+	if err != nil {
+		return nil, errors.Wrap(err, "http get failed")
+	}
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read body")
+	}
+
+	var v vote.Votes
+	err = json.Unmarshal(body, &v)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to json unmarshal api get response")
+	}
+	return v, nil
 }
 
 func getApiResoponse(ctx echo.Context, statusCode int, response interface{}) error {

@@ -27,14 +27,14 @@ func TestGetResults(t *testing.T) {
 	}
 }
 
-func TestGetResultsByCountry(t *testing.T) {
-	resultsByCountry := GetResultsByCountry(currentTestData.votes)
-	expectations := currentTestData.getResultsByCountry()
+func TestGetVotesByCountry(t *testing.T) {
+	resultsByCountry := GetVotesByCountry(currentTestData.votes)
+	expectations := currentTestData.getVotesByCountry()
 
 	// check if total votes match the expectations
 	for _, result := range resultsByCountry {
 		expectedVotes, ok := expectations[result.Country]
-		if !assert.True(t, ok, "a country was returned by GetResultsByCountry that does not exist in test data: '%s'", result.Country) {
+		if !assert.True(t, ok, "a country was returned by GetVotesByCountry that does not exist in test data: '%s'", result.Country) {
 			return
 		}
 		if !assert.Equal(t, expectedVotes, result.TotalVotes, "returned total votes for country '%s' did not match with expected test data", result.Country) {

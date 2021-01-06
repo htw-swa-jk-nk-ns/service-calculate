@@ -12,7 +12,7 @@ type testData struct {
 	candidates map[string]testDataCandidate
 }
 
-func (t testData) getResultsByCountry() map[string]int {
+func (t testData) getVotesByCountry() map[string]int {
 	m := make(map[string]int)
 	m["germany"] = 0
 	m["france"] = 0
