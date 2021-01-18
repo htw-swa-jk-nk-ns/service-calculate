@@ -93,6 +93,9 @@ func getAllVotes() (vote.Votes, error) {
 }
 
 func getApiResponse(ctx echo.Context, statusCode int, response interface{}) error {
+	if statusCode == http.StatusOK && response == nil {
+		response = []struct{}{}
+	}
 	switch format := viper.GetString("api.format"); format {
 	case "json":
 		return ctx.JSON(statusCode, response)
