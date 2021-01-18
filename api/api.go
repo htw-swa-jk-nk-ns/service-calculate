@@ -6,6 +6,7 @@ import (
 	"github.com/htw-swa-jk-nk-ns/service-raw-data/vote"
 	"github.com/labstack/echo"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"net/http"
@@ -35,41 +36,41 @@ func StartAPI() {
 func getResults(ctx echo.Context) error {
 	votes, err := getAllVotes()
 	if err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
+		return getApiResponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
-	return getApiResoponse(ctx, http.StatusOK, calculate.GetResults(votes))
+	return getApiResponse(ctx, http.StatusOK, calculate.GetResults(votes))
 }
 
 func getVotesByCountry(ctx echo.Context) error {
 	votes, err := getAllVotes()
 	if err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
+		return getApiResponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
-	return getApiResoponse(ctx, http.StatusOK, calculate.GetVotesByCountry(votes))
+	return getApiResponse(ctx, http.StatusOK, calculate.GetVotesByCountry(votes))
 }
 
 func getResultsByCountry(ctx echo.Context) error {
 	votes, err := getAllVotes()
 	if err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
+		return getApiResponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
-	return getApiResoponse(ctx, http.StatusOK, calculate.GetCandidatesByCountry(votes))
+	return getApiResponse(ctx, http.StatusOK, calculate.GetCandidatesByCountry(votes))
 }
 
 func getTop5Candidates(ctx echo.Context) error {
 	votes, err := getAllVotes()
 	if err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
+		return getApiResponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
-	return getApiResoponse(ctx, http.StatusOK, calculate.GetTop5Candidates(votes))
+	return getApiResponse(ctx, http.StatusOK, calculate.GetTop5Candidates(votes))
 }
 
 func getTop5Countries(ctx echo.Context) error {
 	votes, err := getAllVotes()
 	if err != nil {
-		return getApiResoponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
+		return getApiResponse(ctx, http.StatusBadRequest, newOutputError(errors.Wrap(err, "failed to get all votes")))
 	}
-	return getApiResoponse(ctx, http.StatusOK, calculate.GetTop5Countries(votes))
+	return getApiResponse(ctx, http.StatusOK, calculate.GetTop5Countries(votes))
 }
 
 func getAllVotes() (vote.Votes, error) {
@@ -85,12 +86,13 @@ func getAllVotes() (vote.Votes, error) {
 	var v vote.Votes
 	err = json.Unmarshal(body, &v)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to json unmarshal api get response")
+		log.Error().Err(err).Msgf("failed to unmarshal json to vote.Votes, json: '%s'", string(body))
+		return nil, errors.Wrapf(err, "failed to unmarshal json to vote.Votes, json: '%s'", string(body))
 	}
 	return v, nil
 }
 
-func getApiResoponse(ctx echo.Context, statusCode int, response interface{}) error {
+func getApiResponse(ctx echo.Context, statusCode int, response interface{}) error {
 	switch format := viper.GetString("api.format"); format {
 	case "json":
 		return ctx.JSON(statusCode, response)
